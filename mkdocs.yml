@@ -1,5 +1,5 @@
 site_name: KBase # Название сайта
-site_description: Документация для модулей ПО # Описание сайта, добавляется в meta-теги
+site_description: Документация # Описание сайта, добавляется в meta-теги
 theme: # Тема сайта, информация о ее параметрах
   name: material # Название темы
   logo: icon.svg # Ссылка на логотип сайта
@@ -40,14 +40,18 @@ theme: # Тема сайта, информация о ее параметрах
 
 nav: # Структура сайта
     - Главная страница: index.md
-    - Руководство администратора: 
-      - admin_guide/index.md
-      - Cистемные требования: admin_guide/requirements.md
-      - Установка ПО: admin_guide/setup.md
-    - Руководство пользователя:
-      - user_guide/index.md
-      - Модуль "Заказы": user_guide/orders.md
-      - Модуль "Договоры": user_guide/contracts.md
+    - Как пользоваться Whisky: 
+      - whisky-guide/index.md
+      - Что такое Whisky? Основные понятия: whisky-guide/01-intro.md
+      - Системные требования: whisky-guide/02-requirements.md
+      - Установка Whisky на Mac: whisky-guide/03-installation.md
+      - Первый запуск: whisky-guide/04-first-start.md
+      - Создание и настройка "бутылки" (Bottle): whisky-guide/05-create-bottle.md
+      - Запуск приложений и игр (общий метод): whisky-guide/06-run-apps.md 
+      - Установка и запуск Steam: whisky-guide/07-steam.md
+      - Решение распространённых проблем: whisky-guide/08-troubleshooting.md
+      - Альтернатива:Whisky для Git-хуков (PHP): whisky-guide/09-alternative-php.md
+    - Справочник API: API_reference/index.md
 
 extra:
   social: # Ссылки на соц.сети
