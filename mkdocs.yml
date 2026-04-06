@@ -15,7 +15,7 @@ theme: # Тема сайта, информация о ее параметрах
     #- Navigation sections # Настройка спойлеров в левом меню
     #- navigation.expand # Разворачивает спойлеры в левом меню по умолчанию
     #- toc.integrate # Фиксирует оглавление страницы в левом меню
-    - navigation.instant # Функция быстрой загрузки страниц
+    #- navigation.instant # Функция быстрой загрузки страниц
     - navigation.top # Добавляет кнопку «к началу» для быстрой обратной прокрутки страницы
     - search.suggest # Подсказки при вводе поискового запроса
     - search.highlight # Подсветка результатов поиска в тексте страницы
@@ -24,6 +24,18 @@ theme: # Тема сайта, информация о ее параметрах
 
   plugins:
     - offline
+    - search
+    #- with-pdf:
+        #author: Имя Автора
+        #copyright: Все права защищены (с) 2026
+        #cover: true        # Включить обложку
+        #cover_title: Руководство Whisky #Название pdf
+        #toc_title: Содержание  # Заголовок для оглавления
+        #output_path: ./help.pdf # Путь для сохранения итогового файла
+        #enabled_if_env: ENABLE_PDF_EXPORT # Рекомендуемая настройка для ускорения разработки
+    - neoteroi.mkdocsoad
+    - redoc-tag
+    - include
 
   language: ru # Язык
   palette: # Настройки светлой и тёмной тем
@@ -32,15 +44,15 @@ theme: # Тема сайта, информация о ее параметрах
       toggle:
         icon: material/weather-sunny # Иконка для активации светлой темы
         name: Выключить солнышко # Всплывающий текст-подсказка
-      primary: blue # Основной цвет
-      accent: blue # Акцентный цвет
+      primary: black # Основной цвет
+      accent: light blue # Акцентный цвет
     # Настройки тёмной темы
     - scheme: slate
       toggle:
         icon: material/weather-night
         name: Позвать солнышко
-      primary: purple
-      accent: purple
+      primary: black
+      accent: deep orange
 
 nav: # Структура сайта
     - Главная страница: index.md
@@ -59,7 +71,7 @@ nav: # Структура сайта
 extra:
   social: # Ссылки на соц.сети
     - icon: fontawesome/brands/github-alt # Иконка гитхаба
-      link: https://github.com/{your_account} # Ссылка на гитхаб
+      link: https://github.com/bmv39819-pixel # Ссылка на гитхаб
 
 markdown_extensions: # Расширения markdown
   - admonition # Поддержка информационных панелей (сообщений типа «Внимание», «Совет», «Примечание», etc.)
@@ -77,5 +89,5 @@ markdown_extensions: # Расширения markdown
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
-#copyright: |
-  #&copy; 2026
+copyright: |
+  &copy; 2026

@@ -7,5 +7,5 @@
 
 Ссылки для скачивания файлов:
 
-- Справочник API  
-**Скачать**
+- [Руководство Whisky  :material-file-download:](./API_reference/Whisky_guide.pdf)
+- [Спецификация API  :material-file-download:](./API_reference/openapi.yaml)
