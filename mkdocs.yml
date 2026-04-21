@@ -71,7 +71,7 @@ nav: # Структура сайта
 extra:
   social: # Ссылки на соц.сети
     - icon: fontawesome/brands/github-alt # Иконка гитхаба
-      link: https://github.com/bmv39819-pixel # Ссылка на гитхаб
+      link: https://github.com # Ссылка на гитхаб
 
 markdown_extensions: # Расширения markdown
   - admonition # Поддержка информационных панелей (сообщений типа «Внимание», «Совет», «Примечание», etc.)
@@ -90,4 +90,4 @@ markdown_extensions: # Расширения markdown
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 copyright: |
-  &copy; 2026
+  &copy; 2026 Маргарита Буйлова
