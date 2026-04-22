@@ -1,0 +1,622 @@
+openapi: '3.0.0'
+info:
+  description: |
+    API для работы с базой данных заказов и их изделиями.
+    
+    API позволяет получать:
+    - список заказов,
+    - список доступных изделий в базе,
+    - информацию о конкретном заказе по идентификатору,
+    - информацию об изделии.
+
+    Также здесь можно добавлять новые заказы и изделия в базу, редактировать сведения об имеющихся заказах и изделиях, удалить заказ из базы.
+
+    В версии API 1.0.0 реализовано добавление изделия в определенный заказ, удаление изделия из заказа.
+  version: '1.0.0'
+  title: API Order Base
+tags:
+  - name: orders
+    description: Методы для работы с заказами
+  - name: items
+    description: Методы для работы с изделиями
+paths:
+  /orders:
+    get:
+      tags:
+        - orders
+      summary: Получение списка заказов
+      description: Метод возвращает список заказов из базы.
+      operationId: getAllOrds
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            Количество заказов в выдаче (для пагинации).
+            Значение по умолчанию `20`
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 10
+            default: 20
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    items:
+                      type: array
+                      description: Список заказов
+                      items:
+                        $ref: '#/components/schemas/Order'
+                    limit:
+                      type: integer
+                      example: 10
+                required:
+                  - items
+                  - limit
+        '400':
+          description: Неверный формат limit
+        '404':
+          description: Заказы не найдены
+    post:
+      tags:
+        - orders
+      summary: Добавление заказа в базу
+      description: Метод добавляет новый заказ в базу
+      operationId: addOrd
+      requestBody:
+        description: Данные заказа
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/NewOrder"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Order'
+        '405':
+          description: Неверный формат ввода
+  /orders/{orderId}:
+    get:
+      tags:
+        - orders
+      summary: Получение информации о заказе по идентификатору
+      description: Метод возвращает информацию о заказе по его идентификатору
+      operationId: findOrdByID
+      parameters:
+        - name: orderId
+          in: path
+          description: Идентификатор заказа, о котором нужно получить информацию
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        '400':
+          description: Задан неверный id
+        '404':
+          description: Заказ не найден
+    patch:
+      tags:
+        - orders
+      summary: Редактирование сведений о заказе
+      description: |
+        Метод изменяет сведения о заказе. Метод изменяет сведения частично: можно передать только производителя, склад отгрузки, статус, поступил (дата поступления заказа), выполнен (дата выполнения заказа), комментарий или идентификатор изделия.
+        Обязательно должен быть передан хотя бы один параметр
+      operationId: updateOrdInfo
+      parameters:
+        - name: orderId
+          in: path
+          description: Идентификатор заказа, сведения о котором нужно изменить
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      requestBody:
+        description: Изменяемые сведения о заказе
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/UpdOrder"
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Order'
+        '405':
+          description: Неверный формат ввода
+        '404':
+          description: Заказ не найден
+    delete:
+      tags:
+        - orders
+      summary: Удаление заказа из базы
+      description: Метод для удаления заказа из базы по его идентификатору
+      operationId: deleteOrder
+      parameters:
+        - name: orderId
+          in: path
+          description: Идентификатор заказа, которого нужно удалить из базы
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      responses:
+        '200':
+          description: Заказ удален из базы
+        '404':
+          description: Заказ не найден
+  /orders/{orderId}/items/{itemId}:
+    get:
+      tags:
+        - orders
+      summary: Получение информации о конкретном изделии конкретного заказа
+      description: |
+        Метод возвращает информацию о конкретном изделии конкретного заказа.
+        Возвращается тип изделия и количество
+      operationId: getOrdItemInfo
+      parameters:
+        - name: orderId
+          in: path
+          description: Идентификатор заказа, об изделии которого нужно получить информацию
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123
+        - name: itemId
+          in: path
+          description: Идентификатор изделия конкретного заказа, о котором нужно получить информацию
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderItem'
+        '400':
+          description: Соотношение заказа и изделия отсутствует
+        '404':
+          description: Заказ не найден
+    post:
+      tags:
+        - orders
+      summary: Добавление изделия в определенный заказа
+      description: Метод добавляет конкретное изделие в определенный заказ
+      operationId: addOrdItem
+      parameters:
+        - name: orderId
+          in: path
+          description: Идентификатор заказа, в который добавляется изделие
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 123
+        - name: itemId
+          required: true
+          in: path
+          description: Идентификатор изделия
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      requestBody:
+        description: Подтверждение изделия конкретного заказа
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/OrderItem"
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/OrderItem'
+        '405':
+          description: Неверный формат ввода
+        '404':
+          description: Заказ не найден
+  /items:
+    get:
+      tags:
+        - items
+      summary: Получение информации о доступных в системе изделиях
+      description: Метод возвращает информацию обо всех доступных в системе изделиях
+      operationId: getAllItemsInfo
+      parameters:
+        - name: limit
+          in: query
+          description: |
+            Количество изделий в выдаче (для пагинации).
+            Значение по умолчанию `20`
+          required: false
+          schema:
+            type: integer
+            format: int64
+            example: 10
+            default: 20
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    items:
+                      type: array
+                      description: Список изделий, доступных в системе
+                      items:
+                        $ref: '#/components/schemas/Item'
+                    limit:
+                      type: integer
+                      example: 10
+                required:
+                  - items
+                  - limit
+        '400':
+          description: Неверный формат limit
+        '404':
+          description: В базе изделия не найдены
+    post:
+      tags:
+        - items
+      summary: Добавление изделия в базу
+      description: Метод добавляет новое изделие в базу
+      operationId: addItem
+      requestBody:
+        description: Описание изделия
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/NewItem"
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Item'
+        '405':
+          description: Неверный формат ввода
+  /items/{itemId}:
+    get:
+      tags:
+        - items
+      summary: Получение информации об изделии по идентификатору
+      description: Метод возвращает информацию об изделии по его идентификатору
+      operationId: findItemByID
+      parameters:
+        - name: itemId
+          in: path
+          description: Идентификатор изделия, о котором нужно получить информацию
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '400':
+          description: Задан неверный id изделия
+        '404':
+          description: Изделие не найдено
+    patch:
+      tags:
+        - items
+      summary: Редактирование изделия
+      description: |
+        Метод изменяет описание изделия. Метод изменяет изделие частично: можно передать только тип изделия и количество.
+        Обязательно должен быть передан хотя бы один параметр
+      operationId: updateItem
+      parameters:
+        - name: itemId
+          in: path
+          description: Идентификатор изделия, который нужно изменить
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      requestBody:
+        description: Изменяемые свойства изделия
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: "#/components/schemas/UpdItem"
+      responses:
+        '200':
+          description: ОК
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/Item'
+        '405':
+          description: Неверный формат ввода
+        '404':
+          description: Изделие не найдено
+    delete:
+      tags:
+        - items
+      summary: Удаление изделия из базы
+      description: Метод удаляет изделие из базы по его идентификатору
+      operationId: deleteItem
+      parameters:
+        - name: itemId
+          in: path
+          description: Идентификатор изделия, который нужно удалить
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 25
+      responses:
+        '200':
+          description: ОК
+        '404':
+          description: Изделие не найдено
+components:
+  schemas:
+    NewItem:
+      type: object
+      properties:
+        itemNumber:
+          type: string
+          description: Децимальный номер изделия
+          example: ФИАШ.436234.610
+        itemType:
+          type: string
+          description: Тип изделия
+          example: МПУ
+        itemName:
+          type: string
+          description: Наименование изделия
+          example: Колесо зубчатое
+        itemStatus:
+          type: string
+          description: Статус изделия
+          example: Новое
+      required:
+        - itemNumber
+        - itemType
+        - itemName
+        - itemStatus
+    UpdItem:
+      type: object
+      properties:
+        itemNumber:
+          type: string
+          description: Децимальный номер изделия
+          example: ФИАШ.436234.610
+        itemType:
+          type: string
+          description: Тип изделия
+          example: МПУ
+        itemName:
+          type: string
+          description: Наименование изделия
+          example: Колесо зубчатое
+        itemStatus:
+          type: string
+          description: Статус изделия
+          example: На рекламации
+    NewOrder:
+      type: object
+      properties:
+        manufacturer:
+          type: string
+          description: Производитель заказа
+          example: ООО "Ваня"
+        warehouse:
+          type: string
+          description: Склад отгрузки заказа
+          example: Камиловское
+        status:
+          type: string
+          description: Статус заказа
+          example: Новый
+        received:
+          type: string
+          #format: date
+          description: Дата поступления заказа
+          example: 15/03/2026
+        completed:
+          type: string
+          #format: date
+          description: Дата выполнения заказа
+          example: 15/03/2026
+        items:
+          type: array
+          description: Список изделий (массив идентификаторов изделий)
+          items:
+            type: integer
+            format: int64
+            example: 1
+          example: [1, 2, 3]
+        comment:
+          type: string
+          description: Комментарий. Необязательное поле
+          example: Дата выполнения может быть перенесена
+      required:
+        - manufacturer
+        - warehouse
+        - status
+        - received
+        - completed
+        - items
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Идентификатор заказа
+          example: 123
+        manufacturer:
+          type: string
+          description: Производитель заказа
+          example: ООО "Ваня"
+        warehouse:
+          type: string
+          description: Склад отгрузки заказа
+          example: Камиловское
+        status:
+          type: string
+          description: Статус заказа
+          example: Выполнен
+        received:
+          type: string
+          #format: date
+          description: Дата поступления заказа
+          example: 15/03/2026
+        completed:
+          type: string
+          #format: date
+          description: Дата выполнения заказа
+          example: 15/03/2026
+        items:
+          type: array
+          description: Список изделий (массив идентификаторов изделий)
+          items:
+            type: integer
+            format: int64
+            example: 1
+          example: [1, 2, 3]
+        comment:
+          type: string
+          description: Комментарий. Необязательное поле
+          example: Дата выполнения может быть перенесена
+      required:
+        - id
+        - manufacturer
+        - warehouse
+        - status
+        - received
+        - completed
+        - items
+    UpdOrder:
+      type: object
+      properties:
+        manufacturer:
+          type: string
+          description: Производитель заказа
+          example: ООО "Ваня"
+        warehouse:
+          type: string
+          description: Склад отгрузки заказа
+          example: Камиловское
+        status:
+          type: string
+          description: Статус заказа
+          example: Выполнен
+        received:
+          type: string
+          #format: date
+          description: Дата поступления заказа
+          example: 15/03/2026
+        completed:
+          type: string
+          #format: date
+          description: Дата выполнения заказа
+          example: 15/03/2026
+        items:
+          type: array
+          description: Список изделий (массив идентификаторов изделий)
+          items:
+            type: integer
+            format: int64
+            example: 1
+          example: [1, 2, 3]
+        comment:
+          type: string
+          description: Комментарий. Необязательное поле
+          example: Дата выполнения может быть перенесена
+    Item:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Идентификатор изделия
+          example: 25
+        itemNumber:
+          type: string
+          description: Децимальный номер изделия
+          example: ФИАШ.436234.610
+        itemType:
+          type: string
+          description: Тип изделия
+          example: МПУ
+        itemName:
+          type: string
+          description: Наименование изделия
+          example: Колесо зубчатое
+        itemStatus:
+          type: string
+          description: Статус изделия
+          example: Новое
+      required:
+        - id
+        - itemNumber
+        - itemType
+        - itemName
+        - itemStatus
+    OrderItem:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          format: int64
+          description: Идентификатор заказа
+          example: 123
+        type:
+          type: string
+          description: Тип изделия
+          example: МПУ
+        quantity:
+          type: integer
+          format: int64
+          description: Количество изделий
+          example: 12
+      required:
+        - orderId
+        - type
+        - quantity
+servers:
+    - description: Пример URL API сервера
+      url: http://128.0.0.1:8091/ExternalBaseApi
